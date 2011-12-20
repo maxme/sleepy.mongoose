@@ -43,7 +43,7 @@ class TipCodeHandler:
             i += 1
             tipcode = self._generate_tipcode(i)
             if self.codes.find({"tipcode": tipcode}).count() == 0:
-                return tipcode
+                return tipcode.upper()
         return "0"
 
     def _create(self, args, out):
@@ -67,9 +67,10 @@ class TipCodeHandler:
         if not(args["id"] and args["salt"] and args["tipcode"]):
             out('{"error": %d}' % (1))
             return
+        args["tipcode"] = args["tipcode"].upper()
         cur = self.codes.find_one({"tipcode": args["tipcode"]})
         if cur:
-            tipcode = cur["tipcode"]
+            tipcode = cur["tipcode"].upper()
             use_count = min(cur["use_count"], MAX_TIPCODE_USAGE)
             if args["id"] == cur["id"]:
                 out('{"error": %d}' % (2))

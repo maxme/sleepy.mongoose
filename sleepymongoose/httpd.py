@@ -84,7 +84,6 @@ class MongoHTTPRequest(BaseHTTPRequestHandler):
         returns the database, collection, and action
         """
         parts = uri.split('/')
-
         # operations always start with _
         if parts[-1][0] != '_':
             return (None, None, None)
