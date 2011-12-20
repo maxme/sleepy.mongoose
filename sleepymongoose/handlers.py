@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pymongo import connection, Connection, ASCENDING, DESCENDING
+from pymongo import uri_parser, connection, Connection, ASCENDING, DESCENDING
 from pymongo.son import SON
 from pymongo.errors import ConnectionFailure, ConfigurationError, OperationFailure, AutoReconnect
 from bson import json_util
@@ -157,7 +157,7 @@ class MongoHandler:
         if "server" in args:
             try:
                 uri = args.getvalue('server')
-                info = pymongo.uri_parser.parse_uri(uri)
+                info = uri_parser.parse_uri(uri)
             except Exception, e:
                 print uri
                 print e
