@@ -10,5 +10,3 @@ if [ -z "$pid" ]; then
     # connect to mongodb
     curl --data server=mongodb://localhost:27017 'http://localhost:27080/_connect'
 fi
-
-

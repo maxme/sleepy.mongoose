@@ -15,6 +15,7 @@
 from SocketServer import BaseServer
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from handlers import MongoHandler
+from tipcode import TipCodeHandler
 
 try:
     from OpenSSL import SSL
@@ -51,7 +52,7 @@ class MongoServer(HTTPServer):
         fpem = MongoServer.pem
         ctx.use_privatekey_file(fpem)
         ctx.use_certificate_file(fpem)
-        
+
         self.socket = SSL.Connection(ctx, socket.socket(self.address_family,
                                                         self.socket_type))
         self.server_bind()
@@ -76,8 +77,8 @@ class MongoHTTPRequest(BaseHTTPRequestHandler):
     jsonp_callback = None;
 
     def _parse_call(self, uri):
-        """ 
-        this turns a uri like: /foo/bar/_query into properties: using the db 
+        """
+        this turns a uri like: /foo/bar/_query into properties: using the db
         foo, the collection bar, executing a query.
 
         returns the database, collection, and action
@@ -96,10 +97,30 @@ class MongoHTTPRequest(BaseHTTPRequestHandler):
             return (parts[0], ".".join(parts[1:-1]), parts[-1])
 
 
+    def response(self, args, func):
+        self.send_response(200, 'OK')
+        self.send_header('Content-type', MongoHTTPRequest.mimetypes['json'])
+        for header in self.response_headers:
+            self.send_header(header[0], header[1])
+        self.end_headers()
+
+        if self.jsonp_callback:
+            func(args, self.prependJSONPCallback,)
+        else:
+            func(args, self.wfile.write)
+
     def call_handler(self, uri, args):
         """ execute something """
-
         (db, collection, func_name) = self._parse_call(uri)
+        if db == "tipcode":
+            if func_name == "_get":
+                self.response({"id": args.getvalue("id"), "salt": args.getvalue("salt"), "tipcode": args.getvalue("tipcode")},
+                              TipCodeHandler.tch._get)
+                return
+            if func_name == "_create":
+                self.response({"id": args.getvalue("id"), "salt": args.getvalue("salt")}, TipCodeHandler.tch._create)
+                return
+
         if db == None or func_name == None:
             self.send_error(404, 'Script Not Found: '+uri)
             return
@@ -117,7 +138,7 @@ class MongoHTTPRequest(BaseHTTPRequestHandler):
                 self.jsonp_callback = args["callback"][0]
             else:
                 self.jsonp_callback = args.getvalue("callback")
-                
+
         func = getattr(MongoHandler.mh, func_name, None)
         if callable(func):
             self.send_response(200, 'OK')
@@ -134,12 +155,12 @@ class MongoHTTPRequest(BaseHTTPRequestHandler):
             return
         else:
             self.send_error(404, 'Script Not Found: '+uri)
-            return            
-        
+            return
+
     def prependJSONPCallback(self, str):
         jsonp_output = '%s(' % self.jsonp_callback + str + ')'
         self.wfile.write( jsonp_output )
-        
+
     # TODO: check for ..s
     def process_uri(self, method):
         if method == "GET":
@@ -175,10 +196,10 @@ class MongoHTTPRequest(BaseHTTPRequestHandler):
         return (uri, args, type)
 
 
-    def do_GET(self):        
+    def do_GET(self):
         (uri, args, type) = self.process_uri("GET")
 
- 
+
         # serve up a plain file
         if len(type) != 0:
             if type in MongoHTTPRequest.mimetypes and os.path.exists(MongoHTTPRequest.docroot+uri):
@@ -236,7 +257,8 @@ class MongoHTTPRequest(BaseHTTPRequestHandler):
             server = MongoServer(('', port), MongoHTTPSRequest)
 
         MongoHandler.mh = MongoHandler(MongoHTTPRequest.mongos)
-        
+        TipCodeHandler.tch = TipCodeHandler()
+
         print "listening for connections on http://localhost:27080\n"
         try:
             server.serve_forever()
