@@ -1,0 +1,10 @@
+# create a tipcode (or check for existance)
+curl --data 'id=123;salt=123' http://mdrive.iopixel.com/mongodb/tipcode/_create
+{"tipcode": "rsuz", "use_count": 0}
+
+# use tipcode
+curl --data 'id=123;salt=121;tipcode=rsuz' http://mdrive.iopixel.com/mongodb/tipcode/_get
+{"ok": 1}
+
+
+
