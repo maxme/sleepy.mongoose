@@ -8,7 +8,7 @@ if [ -z "$pid" ]; then
     # wait for the server to start
     sleep 5
     # connect to mongodb
-    curl --data server=localhost:27017 'http://localhost:27080/_connect'
+    curl --data server=mongodb://localhost:27017 'http://localhost:27080/_connect'
 fi
 
 
