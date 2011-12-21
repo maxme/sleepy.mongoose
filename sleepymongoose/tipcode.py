@@ -20,19 +20,21 @@ class TipCodeHandler:
         self.codes = self.db.codes
 
     def _generate_tipcode(self, call):
-        maxchar = 4
-        if (call >= 5):
-            maxchar = 5
-        if (call >= 10):
+        maxchar = 5
+        if (call >= 3):
             maxchar = 6
+        if (call >= 5):
+            maxchar = 7
         maxi = ord("9") - ord("0") + ord("z") - ord("a") + 1
         res = ""
         for i in range(maxchar):
-            m = random.randint(0, maxi)
-            if (m <= 9):
-                c = ord("0") + m
-            else:
-                c = ord("a") + m - 10
+            c = ord("o")
+            while c == ord("o"):
+                m = random.randint(1, maxi)
+                if (m <= 9):
+                    c = ord("0") + m
+                else:
+                    c = ord("a") + m - 10
             res += chr(c)
         return res
 
