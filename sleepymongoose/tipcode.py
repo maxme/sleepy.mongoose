@@ -11,6 +11,7 @@ except ImportError:
     import simplejson as json
 
 MAX_TIPCODE_USAGE = 5
+SALT_KEY = 514229
 
 class TipCodeHandler:
     tch = None
@@ -18,6 +19,7 @@ class TipCodeHandler:
         self.conn = Connection("localhost")
         self.db = self.conn.tipcode
         self.codes = self.db.codes
+        self.salts = self.db.salts
 
     def _generate_tipcode(self, call):
         maxchar = 5
@@ -38,6 +40,14 @@ class TipCodeHandler:
             res += chr(c)
         return res
 
+    def is_salt_valid(self, salt):
+        data = salt[:6]
+        check = salt[6:]
+        m = str((int(data) ^ SALT_KEY) % 999)
+        if m == check:
+            return True
+        return False
+
     def generate_tipcode(self):
         notnew = False
         i = 0
@@ -51,6 +61,9 @@ class TipCodeHandler:
     def _create(self, args, out):
         if not(args["id"] and args["salt"]):
             out('{"error": %d}' % (1))
+            return
+        if not self.is_salt_valid(args["salt"]):
+            out('{"error": %d}' % (5))
             return
         # Check if it has been generated
         cur = self.codes.find_one({"id": args["id"], "salt": args["salt"]})
@@ -69,6 +82,9 @@ class TipCodeHandler:
         if not(args["id"] and args["salt"] and args["tipcode"]):
             out('{"error": %d}' % (1))
             return
+        if not self.is_salt_valid(args["salt"]):
+            out('{"error": %d}' % (5))
+            return
         args["tipcode"] = args["tipcode"].upper()
         cur = self.codes.find_one({"tipcode": args["tipcode"]})
         if cur:
@@ -80,6 +96,11 @@ class TipCodeHandler:
                 if use_count >= MAX_TIPCODE_USAGE:
                     out('{"error": %d}' % (3))
                 else:
+                    for code in self.salts.find('{"tipcode":"%s"}' % tipcode):
+                        if args["salt"] == code["salt"]:
+                            out('{"error": %d}' % (6))
+                            return
+                    self.salts.save({"tipcode":tipcode, "salt": args["salt"]})
                     cur["use_count"] += 1
                     self.codes.save(cur)
                     out('{"ok": 1}')
@@ -91,17 +112,21 @@ class TipCodeHandler:
 # 2 - user asks for his own code
 # 3 - code has been used too many times
 # 4 - invalid code
+# 5 - invalid salt
+# 5 - salt already used with this code
 
 if __name__ == "__main__":
     import sys
     tch = TipCodeHandler.tch = TipCodeHandler()
-    out = sys.stdout.write
-    tch.create({"id": "123", "salt": "123"}, out)
-    out("\n")
-    tch.create({"id": "123toto", "salt": "123"}, out)
-    out("\n")
-    tch.create({"id": "123", "salt": "124"}, out)
-    out("\n")
+    print tch.is_salt_valid("10395078")
+    print tch.is_salt_valid("10395177")
+    ## out = sys.stdout.write
+    ## tch.create({"id": "123", "salt": "123"}, out)
+    ## out("\n")
+    ## tch.create({"id": "123toto", "salt": "123"}, out)
+    ## out("\n")
+    ## tch.create({"id": "123", "salt": "124"}, out)
+    ## out("\n")
 
 
 
