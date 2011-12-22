@@ -1,3 +1,5 @@
+use tipcode;
+
 m = function(){
     emit("use_count", { count: this.use_count });
 };
@@ -12,5 +14,6 @@ r = function(key , values) {
 
 res = db.codes.mapReduce(m, r, { out : "myout" });
 
-db.myout.find()
-db.myout.drop()
+db.myout.find();
+db.myout.drop();
+
