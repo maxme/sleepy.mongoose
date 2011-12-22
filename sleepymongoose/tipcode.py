@@ -96,7 +96,7 @@ class TipCodeHandler:
                 if use_count >= MAX_TIPCODE_USAGE:
                     out('{"error": %d}' % (3))
                 else:
-                    for code in self.salts.find('{"tipcode":"%s"}' % tipcode):
+                    for code in self.salts.find({"tipcode": tipcode}):
                         if args["salt"] == code["salt"]:
                             out('{"error": %d}' % (6))
                             return
