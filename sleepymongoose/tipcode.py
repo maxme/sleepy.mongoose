@@ -20,6 +20,7 @@ class TipCodeHandler:
         self.db = self.conn.tipcode
         self.codes = self.db.codes
         self.salts = self.db.salts
+        self.freestuff = self.db.freestuff
 
     def _generate_tipcode(self, call):
         maxchar = 5
@@ -47,6 +48,16 @@ class TipCodeHandler:
         if m == check:
             return True
         return False
+
+    # simple mais pourri
+    def sign_message(self, msg):
+        res = 0
+        for i, c in enumerate(msg):
+            res += ord(c) * (i % 20)
+        sig = ("%06d" % res)[:6]
+        check = str((int(sig) ^ SALT_KEY) % 999)
+        sig += check
+        return sig
 
     def generate_tipcode(self):
         notnew = False
@@ -107,19 +118,34 @@ class TipCodeHandler:
         else:
             out('{"error": %d}' % (4))
 
+    def _isfree(self, args, out):
+        if not(args["id"] and args["salt"]):
+            out('{"error": %d}' % (1))
+            return
+        if not self.is_salt_valid(args["salt"]):
+            out('{"error": %d}' % (5))
+            return
+        cur = self.freestuff.find_one()
+        if cur == None:
+            out('{"ok": 0}')
+        else:
+            sig = self.sign_message('{"ok": 1, "coins": %d, "message": "%s"}' % (cur["coins"], cur["message"]))
+            out('{"ok": 1, "coins": %d, "message": "%s", "sig": "%s"}' % (cur["coins"], cur["message"], sig))
+
 # Errors
 # 1 - invalid post data
 # 2 - user asks for his own code
 # 3 - code has been used too many times
 # 4 - invalid code
 # 5 - invalid salt
-# 5 - salt already used with this code
+# 6 - salt already used with this code
 
 if __name__ == "__main__":
     import sys
     tch = TipCodeHandler.tch = TipCodeHandler()
-    print tch.is_salt_valid("10395078")
-    print tch.is_salt_valid("10395177")
+    print tch.is_salt_valid("103950784")
+    print tch.is_salt_valid("103951783")
+    print tch.sign_message('{"ok": 1, "coins": 123123, "message": "yo"}')
     ## out = sys.stdout.write
     ## tch.create({"id": "123", "salt": "123"}, out)
     ## out("\n")

@@ -119,7 +119,10 @@ class MongoHTTPRequest(BaseHTTPRequestHandler):
             if func_name == "_create":
                 self.response({"id": args.getvalue("id"), "salt": args.getvalue("salt")}, TipCodeHandler.tch._create)
                 return
-
+            if func_name == "_isfree":
+                self.response({"id": args.getvalue("id"), "salt": args.getvalue("salt"), "item": args.getvalue("item")},
+                              TipCodeHandler.tch._isfree)
+                return
         if db == None or func_name == None:
             self.send_error(404, 'Script Not Found: '+uri)
             return
