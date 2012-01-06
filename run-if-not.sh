@@ -4,7 +4,7 @@ pid=$(ps x|grep "python"|grep "httpd.py"| grep -v grep |sed "s/^ *//"|cut -d " "
 
 if [ -z "$pid" ]; then
     echo "Start mongodb REST api"
-    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py >> /home/bbsrv/tipcode/sleepy.mongoose/http.log 2>> /home/bbsrv/tipcode/sleepy.mongoose/http.err &
+    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py  2>&1 |grep -v 'HTTP/1.1" 200 -' >> /home/bbsrv/tipcode/sleepy.mongoose/http.log &
     # wait for the server to start
     # sleep 5
     # connect to mongodb
