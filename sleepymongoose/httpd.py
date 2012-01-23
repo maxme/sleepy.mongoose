@@ -261,7 +261,7 @@ class MongoHTTPRequest(BaseHTTPRequestHandler):
         MongoHandler.mh = MongoHandler(MongoHTTPRequest.mongos)
         TipCodeHandler.tch = TipCodeHandler()
 
-        print "listening for connections on http://localhost:27080\n"
+        print "listening for connections on http://localhost:%d\n" % port
         try:
             server.serve_forever()
         except KeyboardInterrupt:
@@ -286,9 +286,10 @@ def usage():
 
 
 def main():
+    port = 27080
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "xd:s:m:", ["xorigin", "docroot=",
-            "secure=", "mongos="])
+        opts, args = getopt.getopt(sys.argv[1:], "xd:s:m:p:", ["xorigin", "docroot=",
+            "secure=", "mongos=", "port="])
 
         for o, a in opts:
             if o == "-d" or o == "--docroot":
@@ -301,13 +302,16 @@ def main():
                 MongoHTTPRequest.mongos = a.split(',')
             if o == "-x" or o == "--xorigin":
                 MongoHTTPRequest.response_headers.append(("Access-Control-Allow-Origin","*"))
+            if o == "-p" or o == "--port":
+                port = int(a)
 
     except getopt.GetoptError:
         print "error parsing cmd line args."
         usage()
         sys.exit(2)
 
-    MongoHTTPRequest.serve_forever(27080)
+    MongoHTTPRequest.serve_forever(port)
+
 if __name__ == "__main__":
     main()
 

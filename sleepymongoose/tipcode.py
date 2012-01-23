@@ -16,7 +16,7 @@ SALT_KEY = 514229
 class TipCodeHandler:
     tch = None
     def __init__(self):
-        self.conn = Connection("localhost")
+        self.conn = Connection("localhost", 27017)
         self.db = self.conn.tipcode
         self.codes = self.db.codes
         self.salts = self.db.salts

@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/zsh
 
 jscode="use tipcode;\ndb.freestuff.find();\n"
 echo $jscode | mongo

@@ -4,7 +4,17 @@ pid=$(ps x|grep "python"|grep "httpd.py"| grep -v grep |sed "s/^ *//"|cut -d " "
 
 if [ -z "$pid" ]; then
     echo "Start mongodb REST api"
-    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py  2>&1 |grep -v 'HTTP/1.1" 200 -' >> /home/bbsrv/tipcode/sleepy.mongoose/http.log &
+    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27080 2> /dev/null > /dev/null &
+    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27081 2> /dev/null > /dev/null &
+    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27082 2> /dev/null > /dev/null &
+    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27083 2> /dev/null > /dev/null & 
+    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27084 2> /dev/null > /dev/null &
+
+    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27085 2> /dev/null > /dev/null & 
+    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27086 2> /dev/null > /dev/null & 
+    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27087 2> /dev/null > /dev/null &
+    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27088 2> /dev/null > /dev/null &
+    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27089 2> /dev/null > /dev/null &
     # wait for the server to start
     # sleep 5
     # connect to mongodb
