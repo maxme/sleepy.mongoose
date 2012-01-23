@@ -130,7 +130,7 @@ class TipCodeHandler:
             out('{"ok": 0}')
         else:
             sig = self.sign_message('{"ok": 1, "coins": %d, "message": "%s"}' % (cur["coins"], cur["message"]))
-            out('{"ok": 1, "coins": %d, "message": "%s", "sig": "%s"}' % (cur["coins"], cur["message"], sig))
+            out('{"ok": 1, "coins": %d, "message": "%s", "platform": "%s", "sig": "%s"}' % (cur["coins"], cur["message"], cur["platform"], sig))
 
 # Errors
 # 1 - invalid post data
