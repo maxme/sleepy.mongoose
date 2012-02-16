@@ -124,7 +124,7 @@ class MongoHTTPRequest(BaseHTTPRequestHandler):
                               TipCodeHandler.tch._isfree)
                 return
             if func_name == "_token":
-                self.response({"data": args}, TipCodeHandler.tch._token)
+                self.response({"token": args.getvalue("token")}, TipCodeHandler.tch._token)
                 return
         if db == None or func_name == None:
             self.send_error(404, 'Script Not Found: '+uri)
