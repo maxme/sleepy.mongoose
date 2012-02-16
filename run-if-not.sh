@@ -10,11 +10,6 @@ if [ -z "$pid" ]; then
     python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27083 2> /dev/null > /dev/null & 
     python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27084 2> /dev/null > /dev/null &
 
-    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27085 2> /dev/null > /dev/null & 
-    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27086 2> /dev/null > /dev/null & 
-    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27087 2> /dev/null > /dev/null &
-    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27088 2> /dev/null > /dev/null &
-    python /home/bbsrv/tipcode/sleepy.mongoose/httpd.py -p 27089 2> /dev/null > /dev/null &
     # wait for the server to start
     # sleep 5
     # connect to mongodb
