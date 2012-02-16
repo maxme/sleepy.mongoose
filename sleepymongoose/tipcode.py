@@ -21,6 +21,7 @@ class TipCodeHandler:
         self.codes = self.db.codes
         self.salts = self.db.salts
         self.freestuff = self.db.freestuff
+        self.tokens = self.db.tokens
 
     def _generate_tipcode(self, call):
         maxchar = 5
@@ -131,6 +132,14 @@ class TipCodeHandler:
         else:
             sig = self.sign_message('{"ok": 1, "coins": %d, "message": "%s"}' % (cur["coins"], cur["message"]))
             out('{"ok": 1, "coins": %d, "message": "%s", "platform": "%s", "sig": "%s"}' % (cur["coins"], cur["message"], cur["platform"], sig))
+
+
+    def _token(self, args, out):
+        if "token" in args:
+            self.tokens.save({"token": args["token"]})
+            out('{"ok": 1}')
+        else:
+            out('{"error": 1}')
 
 # Errors
 # 1 - invalid post data
