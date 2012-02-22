@@ -16,6 +16,7 @@ from SocketServer import BaseServer
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from handlers import MongoHandler
 from tipcode import TipCodeHandler
+from tipscore import TipScoreHandler
 
 try:
     from OpenSSL import SSL
@@ -38,7 +39,6 @@ try:
     urlparse.parse_qs
 except AttributeError:
     urlparse.parse_qs = cgi.parse_qs
-
 
 
 class MongoServer(HTTPServer):
@@ -108,6 +108,14 @@ class MongoHTTPRequest(BaseHTTPRequestHandler):
         else:
             func(args, self.wfile.write)
 
+    def get_dict_from_args(self, args, keys):
+        res = {}
+        for i in keys:
+            tmp = args.getvalue(i)
+            if tmp:
+                res[i] = tmp
+        return res
+
     def call_handler(self, uri, args):
         """ execute something """
         (db, collection, func_name) = self._parse_call(uri)
@@ -126,6 +134,33 @@ class MongoHTTPRequest(BaseHTTPRequestHandler):
             if func_name == "_token":
                 self.response({"token": args.getvalue("token")}, TipCodeHandler.tch._token)
                 return
+
+        if db == "tipscore":
+            if func_name == "_get_leaderboard":
+                self.response({"leaderboard_id": args.getvalue("leaderboard_id")},
+                              TipScoreHandler.tsh._get_leaderboard)
+                return
+
+            if func_name == "_put_score":
+                self.response(self.get_dict_from_args(args, ["id", "salt", "leaderboard_id", "name", "score", "level"]),
+                              TipScoreHandler.tsh._put_score)
+                return
+
+            if func_name == "_get_scores":
+                self.response(self.get_dict_from_args(args, ["id", "leaderboard_id", "name", "count", "page_size"]),
+                              TipScoreHandler.tsh._get_scores)
+                return
+
+            if func_name == "_get_score_page":
+                self.response(self.get_dict_from_args(args, ["leaderboard_id", "start", "page_size"]),
+                              TipScoreHandler.tsh._get_score_page)
+                return
+
+            if func_name == "_get_rank":
+                self.response(self.get_dict_from_args(args, ["leaderboard_id", "id"]),
+                              TipScoreHandler.tsh._get_score_page)
+                return
+
         if db == None or func_name == None:
             self.send_error(404, 'Script Not Found: '+uri)
             return
@@ -263,6 +298,7 @@ class MongoHTTPRequest(BaseHTTPRequestHandler):
 
         MongoHandler.mh = MongoHandler(MongoHTTPRequest.mongos)
         TipCodeHandler.tch = TipCodeHandler()
+        TipScoreHandler.tsh = TipScoreHandler()
 
         print "listening for connections on http://localhost:%d\n" % port
         try:

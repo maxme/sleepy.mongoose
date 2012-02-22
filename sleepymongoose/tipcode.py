@@ -2,6 +2,7 @@ from pymongo import uri_parser, connection, Connection, ASCENDING, DESCENDING
 from pymongo.son import SON
 from pymongo.errors import ConnectionFailure, ConfigurationError, OperationFailure, AutoReconnect
 from bson import json_util
+from salt import *
 import random
 import re
 
@@ -11,7 +12,6 @@ except ImportError:
     import simplejson as json
 
 MAX_TIPCODE_USAGE = 5
-SALT_KEY = 514229
 
 class TipCodeHandler:
     tch = None
@@ -42,24 +42,6 @@ class TipCodeHandler:
             res += chr(c)
         return res
 
-    def is_salt_valid(self, salt):
-        data = salt[:6]
-        check = salt[6:]
-        m = str((int(data) ^ SALT_KEY) % 999)
-        if m == check:
-            return True
-        return False
-
-    # simple mais pourri
-    def sign_message(self, msg):
-        res = 0
-        for i, c in enumerate(msg):
-            res += ord(c) * (i % 20)
-        sig = ("%06d" % res)[:6]
-        check = str((int(sig) ^ SALT_KEY) % 999)
-        sig += check
-        return sig
-
     def generate_tipcode(self):
         notnew = False
         i = 0
@@ -74,7 +56,7 @@ class TipCodeHandler:
         if not(args["id"] and args["salt"]):
             out('{"error": %d}' % (1))
             return
-        if not self.is_salt_valid(args["salt"]):
+        if not is_salt_valid(args["salt"]):
             out('{"error": %d}' % (5))
             return
         # Check if it has been generated
@@ -94,7 +76,7 @@ class TipCodeHandler:
         if not(args["id"] and args["salt"] and args["tipcode"]):
             out('{"error": %d}' % (1))
             return
-        if not self.is_salt_valid(args["salt"]):
+        if not is_salt_valid(args["salt"]):
             out('{"error": %d}' % (5))
             return
         args["tipcode"] = args["tipcode"].upper()
@@ -123,14 +105,14 @@ class TipCodeHandler:
         if not(args["id"] and args["salt"]):
             out('{"error": %d}' % (1))
             return
-        if not self.is_salt_valid(args["salt"]):
+        if not is_salt_valid(args["salt"]):
             out('{"error": %d}' % (5))
             return
         cur = self.freestuff.find_one()
         if cur == None:
             out('{"ok": 0}')
         else:
-            sig = self.sign_message('{"ok": 1, "coins": %d, "message": "%s"}' % (cur["coins"], cur["message"]))
+            sig = sign_message('{"ok": 1, "coins": %d, "message": "%s"}' % (cur["coins"], cur["message"]))
             out('{"ok": 1, "coins": %d, "message": "%s", "platform": "%s", "sig": "%s"}' % (cur["coins"], cur["message"], cur["platform"], sig))
 
 
@@ -162,9 +144,5 @@ if __name__ == "__main__":
     ## out("\n")
     ## tch.create({"id": "123", "salt": "124"}, out)
     ## out("\n")
-
-
-
-
 
 
