@@ -67,7 +67,7 @@ class TipScoreHandler:
                 res = 2
             else:
                 rank = leaderboard.rank_for(args["id"])
-            out(json.dumps({"ok": res, "rank": rank}))
+            out(json.dumps({"ok": res, "rank": rank, "leaderboard_id": args["leaderboard_id"]}))
         except Exception as e:
             print e
             out(json.dumps({"error": -1}))
@@ -82,9 +82,9 @@ class TipScoreHandler:
         leaderboard = self.__get_leaderboard(args["leaderboard_id"])
         scores = leaderboard.around_me(args["id"], page_size=page_size)
         if not scores:
-            out(json.dumps({"error": 8}))
+            out(json.dumps({"error": 8, "leaderboard_id": args["leaderboard_id"]}))
             return
-        res = {"ok": 1, "scores": scores}
+        res = {"ok": 1, "leaderboard_id": args["leaderboard_id"], "scores": scores}
         out(json.dumps(res))
 
     def _get_score_page(self, args, out):
@@ -95,7 +95,7 @@ class TipScoreHandler:
         page_size = min(MAX_PAGE_SIZE, int(args["page_size"]))
         leaderboard = self.__get_leaderboard(args["leaderboard_id"])
         scores = leaderboard.leaders(int(args["start"]), page_size=page_size)
-        res = {"ok": 1, "scores": scores}
+        res = {"ok": 1, "leaderboard_id": args["leaderboard_id"], "scores": scores}
         out(json.dumps(res))
 
     def _get_rank(self, args, out):
@@ -104,7 +104,7 @@ class TipScoreHandler:
             out(check_res)
             return
         rank = leaderboard.rank_for(args["id"])
-        out(json.dumps({"rank": rank}))
+        out(json.dumps({"rank": rank, "leaderboard_id": args["leaderboard_id"], }))
 
 # Errors
 #-1 - undefined
@@ -115,7 +115,7 @@ class TipScoreHandler:
 # 5 - invalid salt
 # 6 - salt already used with this code
 # 7 - invalid leaderboard
-# 8 - can't get scores around this id
+# 8 - not ranked - so can't get scores...
 
 def write(x):
     import sys
@@ -143,30 +143,30 @@ def test_putscore(w):
     tsh = TipScoreHandler.tsh = TipScoreHandler()
     tsh._put_score({
         "name": random.choice(["bob", "robert", "rene", "pouet"]) + str(random.randint(1, 12321)),
-        "score": random.randint(1, 1000),
+        "score": random.randint(1, 5000000),
         "level": random.randint(1, 50),
         "id": "id" + str(random.randint(1, 100000000)),
         "salt": "103950784",
-        "leaderboard_id": "12"
+        "leaderboard_id": random.choice(["874496", "745187", "896367", "896377"]),
         }, w)
 
 def test_putscore2(w, id):
     tsh = TipScoreHandler.tsh = TipScoreHandler()
     tsh._put_score({
         "name": random.choice(["bob", "robert", "rene", "pouet"]) + str(random.randint(1, 12321)),
-        "score": random.randint(1, 1000),
+        "score": random.randint(1, 5000000),
         "level": random.randint(1, 50),
         "id": id,
         "salt": "103950784",
-        "leaderboard_id": "12"
+        "leaderboard_id": random.choice(["874496", "745187", "896367", "896377"]),
         }, w)
 
 
 if __name__ == "__main__":
-    test_getscores()
-    #test_putscore2(write, "pouet5")
+    #test_getscores()
+    #test_putscore2(write, "pouet8")
     #test_getleaderboard()
-    #test_gendata(1000)
+    test_gendata(400000)
 
 
 

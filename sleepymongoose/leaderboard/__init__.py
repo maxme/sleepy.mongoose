@@ -1,6 +1,7 @@
 from redis import Redis, ConnectionPool
 from copy import deepcopy
 from math import ceil
+import time
 
 class Leaderboard(object):
     VERSION = '1.1.4'
@@ -56,6 +57,7 @@ class Leaderboard(object):
     def rank_uid(self, uid, score, level, name):
         self.redis_connection.set(self.leaderboard_name + ":" + uid + ":level", level)
         self.redis_connection.set(self.leaderboard_name + ":" + uid + ":name", name)
+        a = self.redis_connection.zadd(self.leaderboard_name + ":dates", **{str(uid): int(time.time())})
         return self.redis_connection.zadd(self.leaderboard_name, **{str(uid):score})
 
     def remove_uid(self, uid):
