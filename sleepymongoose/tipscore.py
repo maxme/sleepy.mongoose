@@ -67,7 +67,8 @@ class TipScoreHandler:
                 res = 2
             else:
                 rank = leaderboard.rank_for(args["id"])
-            out(json.dumps({"ok": res, "rank": rank, "leaderboard_id": args["leaderboard_id"]}))
+            count = leaderboard.total_scores()
+            out(json.dumps({"ok": res, "scores_count": count, "rank": rank, "leaderboard_id": args["leaderboard_id"]}))
         except Exception as e:
             print e
             out(json.dumps({"error": -1}))
@@ -81,10 +82,11 @@ class TipScoreHandler:
         # get user score
         leaderboard = self.__get_leaderboard(args["leaderboard_id"])
         scores = leaderboard.around_me(args["id"], page_size=page_size)
+        count = leaderboard.total_scores()
         if not scores:
             out(json.dumps({"error": 8, "leaderboard_id": args["leaderboard_id"]}))
             return
-        res = {"ok": 1, "leaderboard_id": args["leaderboard_id"], "scores": scores}
+        res = {"ok": 1, "scores_count": count, "leaderboard_id": args["leaderboard_id"], "scores": scores}
         out(json.dumps(res))
 
     def _get_score_page(self, args, out):
@@ -95,9 +97,10 @@ class TipScoreHandler:
         page_size = min(MAX_PAGE_SIZE, int(args["page_size"]))
         leaderboard = self.__get_leaderboard(args["leaderboard_id"])
         scores = leaderboard.leaders(int(args["start"]), page_size=page_size)
+        count = leaderboard.total_scores()
         if not scores:
             scores = []
-        res = {"ok": 1, "leaderboard_id": args["leaderboard_id"], "scores": scores}
+        res = {"ok": 1, "scores_count": count, "leaderboard_id": args["leaderboard_id"], "scores": scores}
         out(json.dumps(res))
 
     def _get_rank(self, args, out):
