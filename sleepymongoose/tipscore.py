@@ -96,7 +96,7 @@ class TipScoreHandler:
         leaderboard = self.__get_leaderboard(args["leaderboard_id"])
         scores = leaderboard.leaders(int(args["start"]), page_size=page_size)
         if not scores:
-            scores = {}
+            scores = []
         res = {"ok": 1, "leaderboard_id": args["leaderboard_id"], "scores": scores}
         out(json.dumps(res))
 
