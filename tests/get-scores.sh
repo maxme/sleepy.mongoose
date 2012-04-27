@@ -1,4 +1,5 @@
-HOST=gameboy.iopixel.com/mongodb
+HOST=scores.iopixel.com/mongodb
+#HOST=scorestest.iopixel.com/mongodb
 #HOST=mdrive.iopixel.com/mongodb
 #HOST=localhost:27080
 
@@ -21,4 +22,4 @@ NETWORK_SCORE_LBID=896377
 
 echo
 echo "10 first scores"
-curl --data "leaderboard_id=$CAREER_SCORE_LBID&page_size=10&start=0" http://$HOST/tipscore/_get_score_page
+curl --data "leaderboard_id=$CAREER_SCORE_LBID&page_size=1000&start=0" http://$HOST/tipscore/_get_score_page
