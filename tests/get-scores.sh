@@ -21,5 +21,7 @@ NETWORK_SCORE_LBID=896377
 #curl --data "id=pouet5&leaderboard_id=$CAREER_SCORE_LBID&salt=103950784&page_size=4" http://$HOST/tipscore/_get_scores
 
 echo
-echo "10 first scores"
-curl --data "leaderboard_id=$CAREER_SCORE_LBID&page_size=1000&start=0" http://$HOST/tipscore/_get_score_page
+curl --data "leaderboard_id=$CAREER_SCORE_LBID&page_size=20&start=0" http://$HOST/tipscore/_get_score_page
+
+echo
+curl --data "leaderboard_id=$NETWORK_SCORE_LBID&page_size=20&start=0" http://$HOST/tipscore/_get_score_page
