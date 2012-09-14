@@ -7,10 +7,11 @@ NETWORK_SCORE_LBID=896377
 # ARGS
 MODE=$CAREER_SCORE_LBID
 SMIN=6250280
-SMAX=100000000
+SMAX=1000000000000
 
-if [ $SMIN -le 5000000 ]; then
+if [ $SMIN -le 6000000 ]; then
     echo "mininum <$SMIN> seems strange"
 fi
 
+echo "zremrangebyscore $MODE $SMIN $SMAX"
 echo "zremrangebyscore $MODE $SMIN $SMAX" | redis-cli
