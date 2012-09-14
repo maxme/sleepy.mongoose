@@ -74,6 +74,7 @@ class TipScoreHandler:
             out(json.dumps({"error": -1}))
 
     def _get_scores(self, args, out):
+        ALWAYS_BEST_SCORES = 5
         check_res = self.check_args(args, ["leaderboard_id", "id", "page_size"])
         if check_res:
             out(check_res)
@@ -83,6 +84,9 @@ class TipScoreHandler:
         leaderboard = self.__get_leaderboard(args["leaderboard_id"])
         scores = leaderboard.around_me(args["id"], page_size=page_size)
         count = leaderboard.total_scores()
+        if ALWAYS_BEST_SCORES != 0 and scores and scores[0]["rank"] != 1:
+            best_scores = leaderboard.leaders(0, page_size=ALWAYS_BEST_SCORES)
+            scores = best_scores + [{"name": "----------", "level": 0, "score": 0, "uid":0, "rank": ALWAYS_BEST_SCORES+1}]+ scores
         if not scores:
             out(json.dumps({"error": 8, "leaderboard_id": args["leaderboard_id"]}))
             return
@@ -90,6 +94,7 @@ class TipScoreHandler:
         out(json.dumps(res))
 
     def _get_score_page(self, args, out):
+        ALWAYS_BEST_SCORES = 0
         check_res = self.check_args(args, ["leaderboard_id", "start", "page_size"])
         if check_res:
             out(check_res)
@@ -98,6 +103,9 @@ class TipScoreHandler:
         leaderboard = self.__get_leaderboard(args["leaderboard_id"])
         scores = leaderboard.leaders(int(args["start"]), page_size=page_size)
         count = leaderboard.total_scores()
+        if ALWAYS_BEST_SCORES != 0 and int(args["start"]) != 0:
+            best_scores = leaderboard.leaders(0, page_size=ALWAYS_BEST_SCORES)
+            scores = best_scores + [{"name": "----------", "level": 0, "score": 0, "uid":0, "rank": ALWAYS_BEST_SCORES+1}]+ scores
         if not scores:
             scores = []
         res = {"ok": 1, "scores_count": count, "leaderboard_id": args["leaderboard_id"], "scores": scores}
